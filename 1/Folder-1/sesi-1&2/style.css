@@ -1,0 +1,99 @@
+/* menghilangkan gap container navbar */
+*,html{
+    margin: 0;
+    padding: 0;
+}
+.container-utama {
+    /* background-color: tomato; */
+    height: 100vh;/*1vh=1% lebar/tinggi layar*/
+}
+
+/* style seluruh div */
+/* div {
+    background-color: #7b1;
+} */
+
+/* style div hanya navbar */
+/* buat class terlebih dahulu lalu panggil clas dengan .namaclass*/
+.container-navbar {
+    height: 10vh;
+    background-color: crimson;
+    width: 100%;
+}
+/* penerapan */
+.ul-navbar {
+    /* background-color: green; */
+    /* width: 50%; */
+    height: 100px;
+    font-size: 30px;
+    /* 3 item membuat elemen ketengah */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.li-navbar{
+    /* border: 1px solid white;
+    background-color: black; */
+    /* menghilangkan titik list li /style list li*/
+    list-style-type: none;
+    padding: 20px; 
+    color: white;
+    margin: 5px;
+}
+.li-navbar:hover{
+    background-color: tomato;
+    transition: .5s ease-in-out;
+    /* .5s = 0,5 detik/penilisan normal 0.5s*/
+    transition-delay: .3s;
+    border-radius: 8px;
+}
+.a-navbar {
+    color: white;
+    /* menghilangkan underline */
+    text-decoration: none;
+}
+
+.container-content{
+    height: 80vh;
+    background-color: #f7f7f7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.img-content{
+    width: 30%;
+    height: 30%;
+}
+.a-content{
+    background-color: grey;
+    color: white;
+    text-decoration: none;
+    width: 500px;
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 80px;
+    /* untuk shadow"https://cssgenerator.org/box-shadow-css-generator.html" */
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+}
+/* gausah pake ini buat style text, di a-content aja */
+/* .p-content1{
+    color: white;
+    text-decoration: none;
+} */
+.container-footer{
+    height: 10vh;
+    background-color: crimson;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.h1-footer{
+    font-size: 40px;
+    font-weight: 100;
+    color: white;
+}

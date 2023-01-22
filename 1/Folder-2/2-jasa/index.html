@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <!-- membuat web menjadi responsif -->
+		<meta charset="utf-8" />
+		<link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!--  -->
+        <title>Website Belajar Kedua</title>
+        <link rel="stylesheet" href="style.css"/>
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <img src="assets/icon/partner.png" alt="logo" class="logo-img"/>
+                <h1 class="logo-title">whdwan</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#parah">JASA</a></li>
+                    <li><a href="mailto:dwanantowahyu@gmail.com">CONTACT</a></li> 
+                </ul>
+            </nav>
+            <button type="button" class="btn-cta" onclick="redirInstagram()">Follow Saya</button>
+        </header>
+        <div class="container">
+            <div class="intro">
+                <p class="title">Wahyu Dwi Ananto</p>
+                <p class="description">Masih Mahasiswa</p>
+                <img src="assets/foto/Picture 1.jpeg" alt="wahyu dwi ananto foto 1" class="img-foto"/>
+            </div>
+        </div>
+        <div class="parallax" id="parah">
+            <div class="about">
+                <p class="title">Mencoba menjadi programer</p>
+                <p class="description">Belajar aja dulu, ngerti mah belakangan</p>
+                <div class="mt-10">
+                    <button class="btn-cta" onclick="redirWhatsapp()">Mari kerjasama</button>
+                </div>
+            </div>
+            <div class="container">
+                <div class="card" id="jasa">
+                    <div class="card-item">
+                        <img src="assets/icon/24-hours.png" alt="icon 1" class="icon"/>
+                        <p class="card-title">saya suka ngegame</p>
+                        <p class="card-description">Game adalah tempat mencari keributan. Mari bermain game bersama ku, lalu kita adu jotos.</p>
+                    </div>
+                    <div class="card-item">
+                        <img src="assets/icon/hot-deal.png" alt="icon 2" class="icon"/>
+                        <p class="card-title">jasa paling murah</p>
+                        <p class="card-description">Biaya jasa yang saya berikan pasti murah dan terjamin.</p>
+                    </div>
+                    <div class="card-item">
+                        <img src="assets/icon/rating.png" alt="icon 31" class="icon"/>
+                        <p class="card-title">4 Riview</p>
+                        <p class="card-description">Client saya sangat senang berkerjasama dengan saya</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p class="title">&copy; Wahyu Dwi Ananto 2022</p>
+        </footer>
+
+        <script>
+            function redirInstagram(){
+                window.location.href = "https://www.instagram.com/whdwananto_/"
+            }
+            function redirWhatsapp(){
+                window.location.href = "https://wa.me/+62895389528226"
+            }
+        </script>
+
+    </body>
+</html>
