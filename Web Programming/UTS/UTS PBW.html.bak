@@ -1,0 +1,38 @@
+<html>
+	<head>
+		<title>UTS</title>
+	</head>
+	<body>
+		<h3 align="left"> Form Data Mahasiswa </h3>
+		<p> Silahkan untuk mengisi data dengan benar! </p>
+	
+	<form action="" method="POST">
+	<p>
+		<label> Nama <span>:</span></label>
+		<input type="text" name="nama_mhs" placeholder="Masukan Nama Lengkap" />
+	</p>
+	<p>
+		<label> NPM <span>:</span></label>  
+		<input type="text" name="npm_mhs" />
+	</p>
+		<p>
+		<label> No HP <span>:</span></label>  
+		<input type="text" name="no_hp" />
+	</p>
+		<p>
+		<label> Jenis Kelamin <span>:</span></label>  
+		<input type="radio" name="jk" value="laki-laki"/>Laki-laki
+		<input type="radio" name="jk" value="perempuan"/>Perempuan
+	</p>
+		<p>
+		<label> Prodi <span>:</span></label>  
+		<input type="text" name="prodi"  />
+	</p>
+		<p>
+		<label> Alamat <span>:</span></label>  
+		<input type="text" name="Alamat"  />
+	</p>
+		<button type ="submit" name="proses_data">
+		PROSES DATA
+		</button>
+</html>

@@ -1,0 +1,16 @@
+<html>
+<head>
+ <title> Form Dinamis </title>
+</head>
+<body>
+<a href='#' onclick="tambah_form(); return false;" >Add</a>
+<a href='#' onclick="kurangi_form(); return false;">Remove</a>
+<form method="post" action="">
+ // kita masukkan dalam tag table agar tampilannya rapi
+ <table id="formku">
+ <tr><td><input type="text" name="inputan[]"></td></tr>
+ </table>
+<input type="submit" name="ok" value="Submit">
+</form>
+</body>
+</html>

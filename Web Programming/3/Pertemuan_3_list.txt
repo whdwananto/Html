@@ -1,0 +1,44 @@
+<html>
+<head>
+<title>Laman Gambar 1</title>
+</head>
+<body>
+	<h2 align="Center"><font color='red'>Daftar Tempat Wisata Di Karawang Yang Wajib Di Kunjungi</font></h2>
+    <font face="calibri" size="3" color='black' align="justify">
+		Tidak perlu jauh-jauh untuk menikmati libur akhir pekan bersama keluarga atau sahabat, Karawang bisa jadi 
+		salah satu destinasi wisata terbaik untuk bersantai dan beristirahat sejenak dari rutinitas sehari-hari.<br><br>
+		Karawang yang terletak di Jawa Barat atau sekitar 36 km dari Bekasi, memiliki berbagai macam tempat wisata 
+		yang menarik untuk dikunjungi. Dari wisata alam, sejarah hingga modern, semua bisa kamu temukan di Karawang.<br><br>
+		Beberapa destinasi wisata yang cukup populer di Karawang antara lain, Taruma Leisure Waterpark, Pantai 
+		Pelangi, hingga Green Canyon dengan air terjun berwarna hijau asli Karawang.<br><br>
+		Berikut daftar tempat wisata di karawang :<br><br>
+	</font>
+		<a href="http://tarumaleisurewaterpark.com/" target="">
+		<li>Taruma Leisure Waterpark</li><br><IMG SRC="Taruma Leisure Waterpark.jfif"><br><i><u>selengkapnya klik disini</i></u><br></a>
+	
+		<p>Taruma Leisure Waterpark adalah tempat yang sangat direkomendasikan jika Kamu sedang berkunjung ke Karawang.
+		Wisata air ini cukup ramai dipadati oleh para wisatawan, selain karena harga tiket masuknya yang cukup murah, 
+		tempat ini juga sering menawarkan diskon yang membuat para wisatawan menjadi lebih tertarik dengan tempat wisata ini.
+		Taruma Leisure Waterpark juga memiliki beberapa wahana yang cukup beragam seperti twin slide untuk para wisatawan dewasa, 
+		serta kolam ombak dan kolam santai yang di khususkan untuk anak-anak maupun balita.</p>
+		
+		<a href="https://sikidang.com/puncak-sempur/" target="">
+		<li>Puncak Sempur</li><br><IMG SRC="Puncak Sempur.jfif"><br><i><u>selengkapnya klik disini</i></u><br></a>
+		
+		<p>Jika Kamu sedang berlibur ke karawang, tentunya Kamu harus mencoba untuk berkunjung ke tempat wisata yang satu ini. 
+		Puncak Sempur merupakan destinasi wisata yang berada di karawang.Tempat wisata ini menyediakan berbagai fasilitas 
+		yang dapat digunakan oleh para pengunjungnya. Fasilitas yang akan Kamu dapatkan di Puncak Sempur ini berupa kamar 
+		mandi, area camping, warung kopi dan warung kopi, serta spot foto yang indah. Di tempat ini Kamu juga dapat 
+		merelaksasi mata dan pikiran karena terdapat pemandangan hijau yang sangat mempesona. Selain itu, Kamu juga dapat 
+		melihat matahari terbit dan terbenam pada puncak sempur karawang ini.</p>
+		
+		<a href="https://dishub.karawangkab.go.id/berita/green-canyon-karawang" target="">
+		<li>Green Canyon</li><br><IMG SRC="green canyon.jfif"><br><i><u>selengkapnya klik disini</i></u><br></a>
+		<p>Wisata air Green Canyon sangat sayang dilewatkan untuk Kamu yang sedang berkunjung ke Karawang. Tempat ini 
+		memiliki pemandangan yang cukup berbeda dengan tempat wisata lainnya. Seperti namanya, Green Canyon Karawang 
+		memiliki air terjun serta sungai dengan warna hijau yang jernih dan segar. Di sana Kamu dapat melihat stalaktit 
+		atau batuan lancip yang muncul dari langit-langit. Selain itu, disana Kamu juga dapat melihat pemandangan 
+		hijau dari pohon-pohon lebat yang mengelilingi kawasan Green Canyon. Ketika Kamu berkunjung ke tempat ini, 
+		Kamu juga mendapat fasilitas berupa lahan parkir, kamar mandi, mushola, terapi ikan hingga warung makan.</p>
+</body>
+</html>

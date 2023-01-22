@@ -1,0 +1,49 @@
+<html>
+	<head>
+		<title>UTS</title>
+		<script type="text/javascript">
+			function proses_data(){
+				var nama_mhs =(document.formulir.nama.value);
+				var npm_mhs =(document.formulir.npm.value);
+				var no_hp =(document.formulir.nohp.value);
+				var jk =(document.formulir.jenk.value);
+				var prodi =(document.formulir.prod.value);
+				var alamat =(document.formulir.almt.value);
+				alert (nama_mhs+npm+mhs+no_hp+jk+prodi+alamat);
+			}
+		</script>
+	</head>
+	<body>
+		<h3 align="left"> Form Data Mahasiswa </h3>
+		<p> Silahkan untuk mengisi data dengan benar! </p>
+	
+	<form name="formulir" action="" method="POST">
+	<p>
+		<label> Nama <span>:</span></label>
+		<input type="text" name="nama" placeholder="Masukan Nama Lengkap" />
+	</p>
+	<p>
+		<label> NPM <span>:</span></label>  
+		<input type="text" name="npm" />
+	</p>
+		<p>
+		<label> No HP <span>:</span></label>  
+		<input type="text" name="nohp" />
+	</p>
+		<p>
+		<label> Jenis Kelamin <span>:</span></label>  
+		<input type="radio" name="jenk" value="laki-laki"/>Laki-laki
+		<input type="radio" name="jk" value="perempuan"/>Perempuan
+	</p>
+		<p>
+		<label> Prodi <span>:</span></label>  
+		<input type="text" name="prod"  />
+	</p>
+		<p>
+		<label> Alamat <span>:</span></label>  
+		<input type="text" name="Almt"  />
+	</p>
+		<button type ="button" value ="Lihat data" onclick="proses_data()">
+		PROSES DATA
+		</button>
+</html>

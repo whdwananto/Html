@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>UTS</title>
+	</head>
+	<body>
+		<h3 align="left"> Form Data MataKuliah </h3>
+	
+	<form action="" method="POST">
+	<p>
+		<label> Kode Maktul <span>:</span></label>
+		<input type="text" name="kd_maktul" />
+	</p>
+	<p>
+		<label> Nama Maktul <span>:</span></label>  
+		<input type="text" name="npm_mhs" />
+	</p>
+		<p>
+		<label> Semester <span>:</span></label>  
+		<input type="text" name="semester" />
+	</p>
+		<p>
+		<label> Jenis Kelamin <span>:</span></label>  
+		<input type="Jumlah sks" name="jml_sks" />
+	</p>
+		<button type ="submit" name="proses_data"
+</html>
