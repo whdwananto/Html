@@ -1,0 +1,419 @@
+
+<script>
+    (function () {
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+
+        const gridSize = 20;        // 每个小格子的像素
+        const tileCount = canvas.width / gridSize; // 40x40（棋盘面积扩大一倍）
+
+        const SPEEDS = {
+            slow: 260,   // 慢速：适合新手
+            medium: 180, // 中速：默认，比原来慢约 40%
+            fast: 1    // 快速：挑战模式，接近原始速度
+        };
+
+        let currentSpeedKey = 'medium';
+        let currentMode = 'human'; // human / ai
+
+        let snake = [];
+        let direction = { x: 1, y: 0 }; // 初始向右
+        let nextDirection = { x: 1, y: 0 };
+        let food = { x: 10, y: 10 };
+        let score = 0;
+        let highScore = Number(localStorage.getItem('snake_high_score') || 0);
+        let gameLoopId = null;
+        let isRunning = false;
+
+        const scoreEl = document.getElementById('score');
+        const highScoreEl = document.getElementById('high-score');
+        const startOverlay = document.getElementById('startOverlay');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const finalScoreEl = document.getElementById('finalScore');
+        const finalHighScoreEl = document.getElementById('finalHighScore');
+        const speedButtons = document.querySelectorAll('.speed-button');
+        const modeButtons = document.querySelectorAll('.mode-button');
+
+        highScoreEl.textContent = highScore;
+
+        function initGame() {
+            snake = [
+                { x: 8, y: 10 },
+                { x: 7, y: 10 },
+                { x: 6, y: 10 }
+            ];
+            direction = { x: 1, y: 0 };
+            nextDirection = { x: 1, y: 0 };
+            score = 0;
+            scoreEl.textContent = score;
+            placeFood();
+            drawBoard();
+        }
+
+        function placeFood() {
+            let newFood;
+            while (true) {
+                newFood = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+                const onSnake = snake.some(seg => seg.x === newFood.x && seg.y === newFood.y);
+                if (!onSnake) break;
+            }
+            food = newFood;
+        }
+
+        function drawBoard() {
+            // 背景
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, 0, 80,
+                canvas.width / 2, canvas.height / 2, canvas.width / 1.1
+            );
+            gradient.addColorStop(0, '#eff6ff');
+            gradient.addColorStop(1, '#e5e7eb');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 轻微网格
+            ctx.strokeStyle = 'rgba(209, 213, 219, 0.8)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= tileCount; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * gridSize + 0.5, 0);
+                ctx.lineTo(i * gridSize + 0.5, canvas.height);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, i * gridSize + 0.5);
+                ctx.lineTo(canvas.width, i * gridSize + 0.5);
+                ctx.stroke();
+            }
+
+            // 食物
+            ctx.save();
+            ctx.shadowColor = 'rgba(248, 113, 113, 0.85)';
+            ctx.shadowBlur = 16;
+            ctx.fillStyle = '#f97316';
+            const foodX = food.x * gridSize;
+            const foodY = food.y * gridSize;
+            const r = gridSize / 2 - 2;
+            ctx.beginPath();
+            ctx.arc(foodX + gridSize / 2, foodY + gridSize / 2, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // 蛇
+            snake.forEach((seg, index) => {
+                const x = seg.x * gridSize;
+                const y = seg.y * gridSize;
+
+                if (index === 0) {
+                    // 头部
+                    const headGradient = ctx.createLinearGradient(x, y, x, y + gridSize);
+                    headGradient.addColorStop(0, '#22c55e');
+                    headGradient.addColorStop(1, '#16a34a');
+                    ctx.fillStyle = headGradient;
+                } else {
+                    const bodyGradient = ctx.createLinearGradient(x, y, x + gridSize, y + gridSize);
+                    bodyGradient.addColorStop(0, '#4ade80');
+                    bodyGradient.addColorStop(1, '#22c55e');
+                    ctx.fillStyle = bodyGradient;
+                }
+
+                const radius = 6;
+                roundedRect(ctx, x + 2, y + 2, gridSize - 4, gridSize - 4, radius);
+                ctx.fill();
+
+                if (index === 0) {
+                    // 眼睛
+                    ctx.fillStyle = '#14532d';
+                    const eyeOffsetX = direction.x === 1 ? 4 : direction.x === -1 ? -4 : 0;
+                    const eyeOffsetY = direction.y === 1 ? 4 : direction.y === -1 ? -4 : 0;
+                    const centerX = x + gridSize / 2;
+                    const centerY = y + gridSize / 2;
+                    ctx.beginPath();
+                    ctx.arc(centerX + eyeOffsetX - 4, centerY - 3 + eyeOffsetY / 2, 1.5, 0, Math.PI * 2);
+                    ctx.arc(centerX + eyeOffsetX + 4, centerY - 3 + eyeOffsetY / 2, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        function roundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        function gameStep() {
+            // AI 模式下每一帧用 BFS 重新规划方向
+            if (currentMode === 'ai') {
+                const aiDir = findPathByBFS();
+                if (aiDir) {
+                    nextDirection = aiDir;
+                } else {
+                    const safeDir = findAnySafeDirection();
+                    if (safeDir) {
+                        nextDirection = safeDir;
+                    }
+                }
+            }
+
+            direction = nextDirection;
+
+            const head = { ...snake[0] };
+            head.x += direction.x;
+            head.y += direction.y;
+
+            // 撞墙
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                return gameOver();
+            }
+
+            // 撞到自己
+            if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+                return gameOver();
+            }
+
+            snake.unshift(head);
+
+            // 吃到食物
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                scoreEl.textContent = score;
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreEl.textContent = highScore;
+                    localStorage.setItem('snake_high_score', String(highScore));
+                }
+                placeFood();
+            } else {
+                snake.pop();
+            }
+
+            drawBoard();
+        }
+
+        function gameOver() {
+            isRunning = false;
+            if (gameLoopId !== null) {
+                clearInterval(gameLoopId);
+                gameLoopId = null;
+            }
+            finalScoreEl.textContent = score;
+            finalHighScoreEl.textContent = highScore;
+            gameOverOverlay.classList.remove('hidden');
+        }
+
+        function startGame() {
+            if (isRunning) return;
+            isRunning = true;
+            startOverlay.classList.add('hidden');
+            gameOverOverlay.classList.add('hidden');
+            initGame();
+            if (gameLoopId !== null) {
+                clearInterval(gameLoopId);
+            }
+            gameLoopId = setInterval(gameStep, SPEEDS[currentSpeedKey]);
+        }
+
+        function setSpeed(key) {
+            if (!SPEEDS[key]) return;
+            currentSpeedKey = key;
+            updateSpeedButtons();
+            if (isRunning && gameLoopId !== null) {
+                clearInterval(gameLoopId);
+                gameLoopId = setInterval(gameStep, SPEEDS[currentSpeedKey]);
+            }
+        }
+
+        function updateSpeedButtons() {
+            speedButtons.forEach(btn => {
+                const key = btn.getAttribute('data-speed');
+                if (key === currentSpeedKey) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            modeButtons.forEach(btn => {
+                const key = btn.getAttribute('data-mode');
+                if (key === currentMode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Human 模式：键盘控制方向
+        function handleKeyDown(e) {
+            const key = e.key;
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+                e.preventDefault();
+            }
+
+            if (!isRunning && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+                // 仅在人类模式下通过方向键开启游戏
+                if (currentMode === 'human') {
+                    startGame();
+                }
+            }
+
+            if (currentMode !== 'human') {
+                return;
+            }
+
+            switch (key) {
+                case 'ArrowUp':
+                    if (direction.y === 1) break; // 不能直接反向
+                    nextDirection = { x: 0, y: -1 };
+                    break;
+                case 'ArrowDown':
+                    if (direction.y === -1) break;
+                    nextDirection = { x: 0, y: 1 };
+                    break;
+                case 'ArrowLeft':
+                    if (direction.x === 1) break;
+                    nextDirection = { x: -1, y: 0 };
+                    break;
+                case 'ArrowRight':
+                    if (direction.x === -1) break;
+                    nextDirection = { x: 1, y: 0 };
+                    break;
+            }
+        }
+
+        // 使用 BFS 为 AI 寻找从蛇头到食物的最短路径
+        function findPathByBFS() {
+            const start = snake[0];
+            const target = food;
+
+            const visited = Array.from({ length: tileCount }, () =>
+                Array(tileCount).fill(false)
+            );
+            const prev = Array.from({ length: tileCount }, () =>
+                Array(tileCount).fill(null)
+            );
+
+            const blocked = Array.from({ length: tileCount }, () =>
+                Array(tileCount).fill(false)
+            );
+
+            // 将蛇身体视为障碍
+            snake.forEach(seg => {
+                blocked[seg.y][seg.x] = true;
+            });
+            // 起点允许通过
+            blocked[start.y][start.x] = false;
+
+            const queue = [];
+            queue.push(start);
+            visited[start.y][start.x] = true;
+
+            const dirs = [
+                { x: 1, y: 0 },
+                { x: -1, y: 0 },
+                { x: 0, y: 1 },
+                { x: 0, y: -1 }
+            ];
+
+            let found = false;
+
+            while (queue.length > 0) {
+                const cur = queue.shift();
+                if (cur.x === target.x && cur.y === target.y) {
+                    found = true;
+                    break;
+                }
+
+                for (const d of dirs) {
+                    const nx = cur.x + d.x;
+                    const ny = cur.y + d.y;
+
+                    if (nx < 0 || nx >= tileCount || ny < 0 || ny >= tileCount) continue;
+                    if (visited[ny][nx]) continue;
+                    if (blocked[ny][nx]) continue;
+
+                    visited[ny][nx] = true;
+                    prev[ny][nx] = cur;
+                    queue.push({ x: nx, y: ny });
+                }
+            }
+
+            if (!found) return null;
+
+            const path = [];
+            let cur = target;
+            while (cur && !(cur.x === start.x && cur.y === start.y)) {
+                path.push(cur);
+                cur = prev[cur.y][cur.x];
+            }
+
+            path.reverse();
+            if (path.length === 0) return null;
+
+            const next = path[0];
+            return { x: next.x - start.x, y: next.y - start.y };
+        }
+
+        // 当 BFS 找不到路径时，尝试寻找一个安全方向
+        function findAnySafeDirection() {
+            const head = snake[0];
+            const dirs = [
+                { x: 1, y: 0 },
+                { x: -1, y: 0 },
+                { x: 0, y: 1 },
+                { x: 0, y: -1 }
+            ];
+
+            for (const d of dirs) {
+                const nx = head.x + d.x;
+                const ny = head.y + d.y;
+
+                if (nx < 0 || nx >= tileCount || ny < 0 || ny >= tileCount) continue;
+                if (snake.some(seg => seg.x === nx && seg.y === ny)) continue;
+
+                return { x: d.x, y: d.y };
+            }
+
+            return null;
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        speedButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const key = this.getAttribute('data-speed');
+                setSpeed(key);
+            });
+        });
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const mode = this.getAttribute('data-mode');
+                setMode(mode);
+            });
+        });
+
+        // 初始绘制
+        initGame();
+        updateSpeedButtons();
+    })();
+</script>
+</body>
+</html>

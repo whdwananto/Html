@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Snake AI Stable Fixed</title>
+
+<style>
+body{
+  margin:0;
+  background:#111;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  color:white;
+  font-family:Arial;
+}
+canvas{
+  background:black;
+  border:4px solid lime;
+}
+button{
+  margin-top:10px;
+  padding:10px 25px;
+  font-size:18px;
+  background:lime;
+  border:none;
+  cursor:pointer;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+<h2>Snake AI FIXED</h2>
+<canvas id="game"></canvas>
+<button id="startBtn">Start / Restart</button>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+const GRID=20;
+let CELL;
+
+let snake;
+let food;
+let score;
+let interval;
+let gameRunning=false;
+
+let hamiltonian=[];
+let indexMap={};
+
+const COLORS=["#00ff88","#00ccff","#ffcc00","#ff00ff","#ff6600","#ff3333","#33ffcc","#cc66ff"];
+
+function getSnakeColor(i){
+  let group=Math.floor(i/10);
+  return COLORS[group%COLORS.length];
+}
+
+function resizeCanvas(){
+  let size=Math.min(window.innerWidth,window.innerHeight)-120;
+  size=Math.floor(size/GRID)*GRID;
+  canvas.width=size;
+  canvas.height=size;
+  CELL=size/GRID;
+}
+resizeCanvas();
+window.addEventListener("resize",resizeCanvas);
+
+function generateHamiltonian(){
+  hamiltonian=[];
+  indexMap={};
+
+  for(let y=0;y<GRID;y++){
+    if(y%2===0){
+      for(let x=0;x<GRID;x++) hamiltonian.push({x,y});
+    }else{
+      for(let x=GRID-1;x>=0;x--) hamiltonian.push({x,y});
+    }
+  }
+
+  hamiltonian.forEach((p,i)=>{
+    indexMap[p.x+","+p.y]=i;
+  });
+}
+
+function initGame(){
+  generateHamiltonian();
+  snake=[{x:10,y:10}];
+  food=randomFood();
+  score=0;
+  gameRunning=true;
+}
+
+function randomFood(){
+  let f;
+  do{
+    f={
+      x:Math.floor(Math.random()*GRID),
+      y:Math.floor(Math.random()*GRID)
+    };
+  }while(snake.some(s=>s.x===f.x && s.y===f.y));
+  return f;
+}
+
+function neighbors(pos){
+  return[
+    {x:pos.x+1,y:pos.y},
+    {x:pos.x-1,y:pos.y},
+    {x:pos.x,y:pos.y+1},
+    {x:pos.x,y:pos.y-1}
+  ];
+}
+
+function inBounds(p){
+  return p.x>=0 && p.x<GRID && p.y>=0 && p.y<GRID;
+}
+
+/* FIXED BODY CHECK */
+function hitBody(p, body=snake, willGrow=false){
+  return body.some((s,i)=>{
+    if(i===body.length-1 && !willGrow) return false;
+    return s.x===p.x && s.y===p.y;
+  });
+}
+
+/* BFS */
+function bfs(start,target,body=snake, willGrow=false){
+  let queue=[{pos:start,path:[]}];
+  let visited=new Set();
+
+  while(queue.length){
+    let {pos,path}=queue.shift();
+    let key=pos.x+","+pos.y;
+
+    if(visited.has(key)) continue;
+    visited.add(key);
+
+    if(pos.x===target.x && pos.y===target.y){
+      return path;
+    }
+
+    for(let n of neighbors(pos)){
+      if(!inBounds(n)) continue;
+      if(hitBody(n,body,willGrow)) continue;
+
+      queue.push({pos:n,path:[...path,n]});
+    }
+  }
+  return null;
+}
+
+function nextHamiltonian(head){
+  let idx=indexMap[head.x+","+head.y];
+  return hamiltonian[(idx+1)%hamiltonian.length];
+}
+
+/* =========================
+   🧠 FIXED AI CORE
+========================= */
+function autoMove(){
+  let head=snake[0];
+
+  // 1. coba cari food
+  let pathToFood=bfs(head,food,snake,false);
+
+  if(pathToFood && pathToFood.length){
+    let next=pathToFood[0];
+
+    // simulasi step
+    let test=[{...next},...snake];
+    if(!(next.x===food.x && next.y===food.y)){
+      test.pop();
+    }
+
+    // validasi: setelah move masih ada ruang hidup
+    let safe=true;
+
+    let emptyMoves=0;
+    for(let n of neighbors(next)){
+      if(inBounds(n) && !hitBody(n,test,false)){
+        emptyMoves++;
+      }
+    }
+
+    if(emptyMoves>0){
+      move(next);
+      return;
+    }
+  }
+
+  // 2. cari move aman (bukan buntut chasing)
+  let safeMoves=[];
+  for(let n of neighbors(head)){
+    if(inBounds(n) && !hitBody(n,snake,false)){
+      safeMoves.push(n);
+    }
+  }
+
+  if(safeMoves.length){
+    move(safeMoves[0]);
+    return;
+  }
+
+  // 3. terakhir baru Hamiltonian
+  move(nextHamiltonian(head));
+}
+
+function move(next){
+  let willGrow = (next.x===food.x && next.y===food.y);
+
+  if(!inBounds(next)) return gameOver();
+  if(hitBody(next,snake,willGrow)) return gameOver();
+
+  snake.unshift(next);
+
+  if(willGrow){
+    score++;
+    food=randomFood();
+  }else{
+    snake.pop();
+  }
+}
+
+function draw(){
+  ctx.fillStyle="black";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle="red";
+  ctx.fillRect(food.x*CELL,food.y*CELL,CELL,CELL);
+
+  snake.forEach((s,i)=>{
+    let x=s.x*CELL;
+    let y=s.y*CELL;
+
+    if(i===0){
+      ctx.fillStyle="#00ff88";
+      ctx.beginPath();
+      ctx.moveTo(x+CELL/2,y);
+      ctx.lineTo(x,y+CELL);
+      ctx.lineTo(x+CELL,y+CELL);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle="black";
+      ctx.fillRect(x+CELL/3,y+CELL/3,3,3);
+      ctx.fillRect(x+CELL/1.8,y+CELL/3,3,3);
+
+    }else if(i===snake.length-1){
+      ctx.fillStyle="rgba(0,255,0,0.4)";
+      ctx.fillRect(x+CELL/4,y+CELL/4,CELL/2,CELL/2);
+
+    }else{
+      ctx.fillStyle=getSnakeColor(i);
+      ctx.fillRect(x,y,CELL-2,CELL-2);
+    }
+  });
+
+  ctx.fillStyle="white";
+  ctx.font="20px Arial";
+  ctx.fillText("Score: "+score,10,25);
+
+  if(!gameRunning){
+    ctx.fillStyle="rgba(0,0,0,0.6)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="white";
+    ctx.font="40px Arial";
+    ctx.fillText("GAME OVER",canvas.width/2-130,canvas.height/2);
+  }
+}
+
+function gameOver(){
+  gameRunning=false;
+  clearInterval(interval);
+}
+
+function loop(){
+  if(!gameRunning) return;
+  autoMove();
+  draw();
+}
+
+document.getElementById("startBtn").onclick=function(){
+  clearInterval(interval);
+  initGame();
+  interval=setInterval(loop,80);
+};
+
+initGame();
+draw();
+
+</script>
+</body>
+</html>

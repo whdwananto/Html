@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+  <title>PESAN TIKET</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-light sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">TOURGUIDE</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="/tourguide_builder/index.html">HOME</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/tourguide_builder/paket/index.html">PAKET</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/tourguide_builder/pesan/index.html">PESAN</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Others
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/tourguide_builder/contact/index.html">Contact</a></li>
+              <li><a class="dropdown-item" href="/tourguide_builder/kupon/index.html">Kupon</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-light" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid bg-dark text-light" style="height: 100vh;">
+    <div class="row">
+      <div class="col-12">
+        <h1>Pemesanan Paket</h1>
+        <div class="row align-items-center">
+          <form>
+            <div class="mb-3">
+              <label for="nama" class="form-label">Nama</label>
+              <input type="text" class="form-control" name="nama" id="nama">
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" name="email" id="email">
+              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+            </div>
+            <div class="mb-3">
+              <label for="paket" class="form-label">Paket</label>
+              <select class="form-select" aria-label="Default select example" name="paket" id="paket">
+                <option selected>Pilih Paket</option>
+                <option value="Entry Class">Paket Entry Class</option>
+                <option value="Medium Class">Paket Medium Class</option>
+                <option value="High Class">Paket High Class</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="tanggal" class="form-label">Tanggal Berangkat</label>
+              <input type="date" class="form-control" name="tanggal" id="tanggal">
+            </div>
+            <div class="mb-3">
+              <label for="jumlah" class="form-label">Jumlah Paket</label>
+              <input type="number" class="form-control" name="jumlah" id="jumlah" min="1" max="10">
+            </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="exampleCheck1">
+              <label class="form-check-label" for="exampleCheck1">Check me out</label>
+            </div>
+            <button type="submit" class="btn btn-primary" onclick="submitForm()">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class PemesananTiketBuilder {
+      constructor(nama, email, paket, tanggal, jumlah) {
+        this.nama = nama;
+        this.email = email;
+        this.paket = paket;
+        this.tanggal = tanggal;
+        this.jumlah = jumlah;
+      }
+
+      setNama(nama) {
+        this.nama = nama;
+        return this;
+      }
+
+      setEmail(email) {
+        this.email = email;
+        return this;
+      }
+
+      setPaket(paket) {
+        this.paket = paket;
+        return this;
+      }
+
+      setTanggal(tanggal) {
+        this.tanggal = tanggal;
+        return this;
+      }
+
+      setJumlah(jumlah) {
+        this.jumlah = jumlah;
+        return this;
+      }
+
+      build() {
+        return new TiketPemesanan(this.nama, this.email, this.paket, this.tanggal, this.jumlah);
+      }
+    }
+
+    class TiketPemesanan {
+      constructor(nama, email, paket, tanggal, jumlah) {
+        this.nama = nama;
+        this.email = email;
+        this.paket = paket;
+        this.tanggal = tanggal;
+        this.jumlah = jumlah;
+      }
+
+      print() {
+        window.alert(`Tiket Atas Nama: ${this.nama}, Email: ${this.email}, Paket: ${this.paket}, Tanggal: ${this.tanggal}, Jumlah: ${this.jumlah}`);
+      }
+    }
+
+    function submitForm() {
+      const nama = document.getElementById("nama").value;
+      const email = document.getElementById("email").value;
+      const paket = document.getElementById("paket").value;
+      const tanggal = document.getElementById("tanggal").value;
+      const jumlah = document.getElementById("jumlah").value;
+
+      const tiket = new PemesananTiketBuilder()
+        .setNama(nama)
+        .setEmail(email)
+        .setPaket(paket)
+        .setTanggal(tanggal)
+        .setJumlah(jumlah)
+        .build();
+
+      tiket.print();
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous">
+    </script>
+</body>
+
+</html>

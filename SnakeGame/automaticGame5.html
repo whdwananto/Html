@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Snake AI - ANTI LOOP PERFECT</title>
+
+<style>
+body{
+    margin:0;
+    background:#111;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    color:white;
+    font-family:Arial;
+}
+
+#wrap{
+    width:90vw;
+    max-width:600px;
+    aspect-ratio:1/1;
+}
+
+canvas{
+    width:100%;
+    height:100%;
+    background:black;
+    border:4px solid lime;
+    box-sizing:border-box;
+}
+
+button{
+    margin-top:10px;
+    padding:10px 25px;
+    font-size:18px;
+    background:lime;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Snake AI - ANTI LOOP PERFECT</h2>
+
+<div id="wrap">
+<canvas id="game"></canvas>
+</div>
+
+<button id="startBtn">Start / Restart</button>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+/* ========================= */
+const SIZE = 600;
+const GRID = 20;
+
+canvas.width = SIZE;
+canvas.height = SIZE;
+
+const CELL = SIZE / GRID;
+
+/* ========================= */
+let snake, food, score, interval, gameRunning=false;
+
+let hamiltonian=[];
+let indexMap={};
+
+let lastPositions=[];
+
+/* ========================= */
+function buildHamiltonian(){
+    hamiltonian=[];
+    indexMap={};
+
+    for(let y=0;y<GRID;y++){
+        if(y%2===0){
+            for(let x=0;x<GRID;x++){
+                hamiltonian.push({x,y});
+            }
+        }else{
+            for(let x=GRID-1;x>=0;x--){
+                hamiltonian.push({x,y});
+            }
+        }
+    }
+
+    hamiltonian.forEach((p,i)=>{
+        indexMap[p.x+","+p.y]=i;
+    });
+}
+
+/* ========================= */
+function init(){
+    buildHamiltonian();
+
+    snake=[
+        {x:10,y:10},
+        {x:9,y:10},
+        {x:8,y:10}
+    ];
+
+    food=randomFood();
+    score=0;
+    gameRunning=true;
+
+    lastPositions=[];
+}
+
+/* ========================= */
+function randomFood(){
+    let f;
+    do{
+        f={x:Math.floor(Math.random()*GRID),y:Math.floor(Math.random()*GRID)};
+    }while(snake.some(s=>s.x===f.x&&s.y===f.y));
+    return f;
+}
+
+function inBounds(p){
+    return p.x>=0&&p.x<GRID&&p.y>=0&&p.y<GRID;
+}
+
+function hitBody(p,body){
+    return body.some(s=>s.x===p.x&&s.y===p.y);
+}
+
+function neighbors(p){
+    return [
+        {x:p.x+1,y:p.y},
+        {x:p.x-1,y:p.y},
+        {x:p.x,y:p.y+1},
+        {x:p.x,y:p.y-1}
+    ];
+}
+
+/* ========================= */
+function floodFill(start,body){
+    let q=[start];
+    let vis=new Set();
+    let count=0;
+
+    while(q.length){
+        let p=q.shift();
+        let k=p.x+","+p.y;
+
+        if(vis.has(k)) continue;
+        vis.add(k);
+        count++;
+
+        for(let n of neighbors(p)){
+            if(!inBounds(n)) continue;
+            if(hitBody(n,body)) continue;
+            q.push(n);
+        }
+    }
+    return count;
+}
+
+/* ========================= */
+function canReachTail(body){
+    let head=body[0];
+    let tail=body[body.length-1];
+
+    let q=[head];
+    let vis=new Set();
+    let blocked=new Set(body.map(s=>s.x+","+s.y));
+
+    while(q.length){
+        let p=q.shift();
+        let k=p.x+","+p.y;
+
+        if(vis.has(k)) continue;
+        vis.add(k);
+
+        if(p.x===tail.x&&p.y===tail.y) return true;
+
+        for(let n of neighbors(p)){
+            if(!inBounds(n)) continue;
+
+            let key=n.x+","+n.y;
+            if(!(n.x===tail.x&&n.y===tail.y) && blocked.has(key)) continue;
+
+            q.push(n);
+        }
+    }
+    return false;
+}
+
+/* ========================= */
+function safePathToFood(){
+    let head=snake[0];
+
+    let q=[{p:head,path:[]}];
+    let vis=new Set();
+    let blocked=new Set(snake.map(s=>s.x+","+s.y));
+
+    while(q.length){
+        let {p,path}=q.shift();
+        let k=p.x+","+p.y;
+
+        if(vis.has(k)) continue;
+        vis.add(k);
+
+        if(p.x===food.x&&p.y===food.y){
+            return path;
+        }
+
+        for(let n of neighbors(p)){
+            if(!inBounds(n)) continue;
+
+            let nk=n.x+","+n.y;
+            if(blocked.has(nk)) continue;
+
+            q.push({p:n,path:[...path,n]});
+        }
+    }
+    return null;
+}
+
+/* ========================= */
+function nextHamiltonian(head){
+    let idx=indexMap[head.x+","+head.y];
+    return hamiltonian[(idx+1)%hamiltonian.length];
+}
+
+/* ========================= */
+function autoMove(){
+    let head=snake[0];
+
+    /* ===== ANTI LOOP ===== */
+    let key = head.x + "," + head.y;
+    lastPositions.push(key);
+    if(lastPositions.length > 20) lastPositions.shift();
+
+    let sameCount = lastPositions.filter(p => p === key).length;
+    let isLooping = sameCount > 5;
+
+    /* ===== PRIORITY 1: FOOD SAFE ===== */
+    let foodPath=safePathToFood();
+
+    if(foodPath && foodPath.length){
+        let next=foodPath[0];
+
+        let sim=[{...next},...snake];
+        if(!(next.x===food.x&&next.y===food.y)) sim.pop();
+
+        if(canReachTail(sim)){
+            move(next);
+            return;
+        }
+    }
+
+    /* ===== PRIORITY 2: ANTI LOOP ESCAPE ===== */
+    if(isLooping){
+        move(nextHamiltonian(head));
+        return;
+    }
+
+    /* ===== PRIORITY 3: EXPAND SPACE SMART ===== */
+    let best=null;
+    let bestScore=-1e9;
+
+    for(let n of neighbors(head)){
+        if(!inBounds(n)) continue;
+        if(hitBody(n,snake)) continue;
+
+        let sim=[{...n},...snake];
+        sim.pop();
+
+        if(!canReachTail(sim)) continue;
+
+        let space=floodFill(n,sim);
+        let dist=Math.abs(n.x-food.x)+Math.abs(n.y-food.y);
+
+        let score=space - dist*2;
+
+        if(score>bestScore){
+            bestScore=score;
+            best=n;
+        }
+    }
+
+    if(best){
+        move(best);
+        return;
+    }
+
+    /* ===== LAST: HAMILTONIAN ===== */
+    move(nextHamiltonian(head));
+}
+
+/* ========================= */
+function move(p){
+    let grow=(p.x===food.x&&p.y===food.y);
+
+    if(!inBounds(p)) return gameOver();
+    if(hitBody(p,snake)&&!grow) return gameOver();
+
+    snake.unshift(p);
+
+    if(grow){
+        score++;
+        food=randomFood();
+    }else{
+        snake.pop();
+    }
+}
+
+/* ========================= */
+function draw(){
+    ctx.fillStyle="black";
+    ctx.fillRect(0,0,SIZE,SIZE);
+
+    ctx.fillStyle="red";
+    ctx.fillRect(food.x*CELL,food.y*CELL,CELL,CELL);
+
+    snake.forEach((s,i)=>{
+        ctx.fillStyle=i===0?"lime":"#00ccff";
+        ctx.fillRect(s.x*CELL,s.y*CELL,CELL-2,CELL-2);
+    });
+
+    ctx.fillStyle="white";
+    ctx.font="16px Arial";
+    ctx.fillText("Score: "+score,10,20);
+}
+
+/* ========================= */
+function gameOver(){
+    gameRunning=false;
+    clearInterval(interval);
+}
+
+/* ========================= */
+function loop(){
+    if(!gameRunning) return;
+    autoMove();
+    draw();
+}
+
+/* ========================= */
+document.getElementById("startBtn").onclick=()=>{
+    clearInterval(interval);
+    init();
+    interval=setInterval(loop,80);
+};
+
+init();
+draw();
+</script>
+
+</body>
+</html>
