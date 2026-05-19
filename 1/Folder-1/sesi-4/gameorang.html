@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Codafan Worm Zone</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: #0f172a;
+        cursor: crosshair;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+    #score {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        font-size: 18px;
+    }
+</style>
+</head>
+<body>
+
+<div id="score">Skor: 0</div>
+<canvas id="game"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+
+window.addEventListener("mousemove", e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+let worm = [];
+let wormLength = 25;
+let speed = 2;
+let score = 0;
+
+for (let i = 0; i < wormLength; i++) {
+    worm.push({ x: canvas.width / 2, y: canvas.height / 2 });
+}
+
+let food = {
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: 6
+};
+
+function update() {
+    const head = worm[0];
+    const angle = Math.atan2(mouse.y - head.y, mouse.x - head.x);
+
+    const newHead = {
+        x: head.x + Math.cos(angle) * speed,
+        y: head.y + Math.sin(angle) * speed
+    };
+
+    worm.unshift(newHead);
+    if (worm.length > wormLength) worm.pop();
+
+    const dx = newHead.x - food.x;
+    const dy = newHead.y - food.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < 10) {
+        wormLength += 5;
+        score += 10;
+        document.getElementById("score").innerText = "Skor: " + score;
+        food.x = Math.random() * canvas.width;
+        food.y = Math.random() * canvas.height;
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Food
+    ctx.beginPath();
+    ctx.arc(food.x, food.y, food.r, 0, Math.PI * 2);
+    ctx.fillStyle = "yellow";
+    ctx.fill();
+
+    // Worm
+    for (let i = 0; i < worm.length; i++) {
+        ctx.beginPath();
+        ctx.arc(worm[i].x, worm[i].y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = i === 0 ? "#22c55e" : "#16a34a";
+        ctx.fill();
+    }
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+loop();
+
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
